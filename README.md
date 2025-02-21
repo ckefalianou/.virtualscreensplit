@@ -1,5 +1,5 @@
 
-# Display Mode Switcher Script
+# Virtual Screen Split
 
 This is a bash script that allows you to quickly switch between different display configurations for your monitors. You can use it to set up a single monitor, split your monitor into virtual displays, or set up a dual monitor configuration. 
 
