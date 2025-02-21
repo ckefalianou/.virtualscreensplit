@@ -10,7 +10,7 @@ When working with single Ultrawide screens, and you need to share your screen, i
 
 - **Single Mode:** Sets your primary display to the full resolution and disables the second display.
 - **Virtual Split Mode:** Splits your monitor into two virtual monitors.
-- **Virtual Three Split Mode:** Splits your monitor into three virtual monitors.
+- **Virtual Three Split Mode:** Splits your monitor into three virtual monitors. The middle one, is always 1920px.
 - **Physical Dual Monitors:** Enables a physical dual monitor setup, placing the second monitor to the right of the primary display.
 
 ## Requirements
