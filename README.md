@@ -16,7 +16,6 @@ When working with single Ultrawide screens, and you need to share your screen, i
 ## Requirements
 
 - `xrandr`: The script uses `xrandr` for managing displays, so it must be installed on your system.
-- A dual display setup, with one of the displays being an ultrawide.
 
 ## Script Breakdown
 
