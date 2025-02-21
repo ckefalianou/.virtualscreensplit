@@ -1,8 +1,12 @@
 #!/bin/bash
 
 # Get the primary display name
-PRIMARY_DISPLAY="DP-1"
-SECOND_DISPLAY="HDMI-1" # Change this if your second monitor has a different name
+PRIMARY_DISPLAY=$(xrandr --listmonitors | grep "*" | awk '{print $4}')
+
+echo "Primary Display: $PRIMARY_DISPLAY"
+
+# Get the secondary display names (if any)
+SECOND_DISPLAY=$(xrandr | grep " connected" | grep -v "$PRIMARY_DISPLAY" | awk '{print $1}')
 
 PRIMARY_RESOLUTION=$(xrandr --current | grep -A1 "$PRIMARY_DISPLAY" | tail -n 1 | awk '{print $1}')
 PRIMARY_WIDTH=$(echo $PRIMARY_RESOLUTION | cut -d 'x' -f 1) #${PRIMARY_WIDTH}
@@ -13,6 +17,7 @@ MIDDLE_THIRDS=$(( (PRIMARY_WIDTH - MIDDLE_WIDTH) / 2 ))
 THIRD_SCREEN_OFFSET=$((PRIMARY_WIDTH - MIDDLE_THIRDS))
 
 remove_virtual_monitors() {
+    echo "Removing all possible virtual monitors..."
     xrandr --delmonitor VIRTUAL1 2>/dev/null
     xrandr --delmonitor VIRTUAL2 2>/dev/null
     xrandr --delmonitor VIRTUAL3 2>/dev/null
@@ -55,12 +60,14 @@ echo "1) Single Ultrawide Monitor (${PRIMARY_WIDTH}x${PRIMARY_HEIGHT})"
 echo "2) Virtual Split Mode (2x ${HALF_WIDTH}x${PRIMARY_HEIGHT})"
 echo "3) Virtual Three Split Mode (${MIDDLE_THIRDS}x${PRIMARY_HEIGHT} | ${MIDDLE_WIDTH}x${PRIMARY_HEIGHT} | ${MIDDLE_THIRDS}x${PRIMARY_HEIGHT})"
 echo "4) Physical Dual Monitors"
-read -p "Enter your choice (1/2/3/4): " choice
+echo "5) Delete All Virtual Monitors"
+read -p "Enter your choice (1/2/3/4/5): " choice
 
 case $choice in
     1) single_monitor ;;
     2) virtual_split ;;
     3) virtual_three_split ;;
     4) physical_dual ;;
+    5) remove_virtual_monitors ;;
     *) echo "Invalid choice, exiting." ;;
 esac
