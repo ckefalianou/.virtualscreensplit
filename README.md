@@ -49,3 +49,8 @@ chmod +x virtualsplitscreen.sh
 ./virtualsplitscreen.sh
 ```
 
+### Test virtual screen splits
+```
+xrandr --listmonitors
+```
+
