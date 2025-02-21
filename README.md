@@ -38,15 +38,15 @@ When working with single Ultrawide screens, and you need to share your screen, i
 
 ### Usage
 
-1. Download or copy the script to a file on your system (e.g., `virtualsplitscreen.sh`).
+1. Download or copy the script to a file on your system (e.g., `virtualscreensplit.sh`).
 2. Navigate to that folder through Terminal
 3. Make the script executable:
 ```bash
-chmod +x virtualsplitscreen.sh
+chmod +x virtualscreensplit.sh
 ```
 4. Run the script
 ```bash
-./virtualsplitscreen.sh
+./virtualscreensplit.sh
 ```
 
 ### Test virtual screens
