@@ -37,7 +37,6 @@ When working with single Ultrawide screens, and you need to share your screen, i
 - **single_monitor**: Switches to a single ultrawide monitor by disabling the second display.
 - **virtual_split**: Splits the monitor into two virtual monitors.
 - **virtual_three_split**: Splits the monitor into three virtual monitors.
-- **physical_dual**: Switches to a physical dual monitor setup.
 
 ### Usage
 
