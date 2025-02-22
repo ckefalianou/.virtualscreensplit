@@ -103,29 +103,17 @@ virtual_three_split() {
     echo "Switched to Virtual Three Split Mode (${MIDDLE_THIRDS}x${PRIMARY_HEIGHT} | ${MIDDLE_WIDTH}x${PRIMARY_HEIGHT} | ${MIDDLE_THIRDS}x${PRIMARY_HEIGHT})"
 }
 
-physical_dual() {
-    remove_virtual_monitors
-    if [ "$SESSION_TYPE" = "x11" ] && [ -n "$SECOND_DISPLAY" ]; then
-        xrandr --output "$PRIMARY_DISPLAY" --primary --auto --output "$SECOND_DISPLAY" --auto --right-of "$PRIMARY_DISPLAY"
-        echo "Switched to Physical Dual Monitor Setup"
-    else
-        echo "No secondary display detected or running on Wayland."
-    fi
-}
-
 echo "Choose a display mode:"
 echo "1) Single Ultrawide Monitor (${PRIMARY_WIDTH}x${PRIMARY_HEIGHT})"
 echo "2) Virtual Split Mode (2x ${HALF_WIDTH}x${PRIMARY_HEIGHT})"
 echo "3) Virtual Three Split Mode (${MIDDLE_THIRDS}x${PRIMARY_HEIGHT} | ${MIDDLE_WIDTH}x${PRIMARY_HEIGHT} | ${MIDDLE_THIRDS}x${PRIMARY_HEIGHT})"
-echo "4) Physical Dual Monitors"
-echo "5) Delete All Virtual Monitors"
-read -p "Enter your choice (1/2/3/4/5): " choice
+echo "4) Delete All Virtual Monitors"
+read -p "Enter your choice (1/2/3/4): " choice
 
 case $choice in
     1) single_monitor ;;
     2) virtual_split ;;
     3) virtual_three_split ;;
-    4) physical_dual ;;
-    5) remove_virtual_monitors ;;
+    4) remove_virtual_monitors ;;
     *) echo "Invalid choice, exiting." ;;
 esac

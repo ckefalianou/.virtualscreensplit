@@ -8,8 +8,6 @@ if [ -z "$PRIMARY_DISPLAY" ]; then
     exit 1
 fi
 
-echo "Primary Display: $PRIMARY_DISPLAY"
-
 # Get the secondary display names (if any)
 SECOND_DISPLAY=$(xrandr | grep " connected" | awk '{print $1}' | grep -v "$PRIMARY_DISPLAY" || echo "")
 
@@ -28,17 +26,17 @@ remove_virtual_monitors() {
     done
 }
 
-# Function to set single ultrawide mode
+# Function to set single monitor mode
 single_monitor() {
     xrandr --output "$PRIMARY_DISPLAY" --mode ${PRIMARY_WIDTH}x${PRIMARY_HEIGHT} --primary
     if [ -n "$SECOND_DISPLAY" ]; then
         xrandr --output "$SECOND_DISPLAY" --off
     fi
     remove_virtual_monitors
-    echo "Switched to Single Ultrawide Monitor (${PRIMARY_WIDTH}x${PRIMARY_HEIGHT})"
+    echo "Switched to Single Monitor (${PRIMARY_WIDTH}x${PRIMARY_HEIGHT})"
 }
 
-# Function to split ultrawide into two virtual monitors
+# Function to split monitor into two virtual monitors
 virtual_split() {
     remove_virtual_monitors
     xrandr --setmonitor VIRTUAL1 ${HALF_WIDTH}/${PRIMARY_WIDTH}x${PRIMARY_HEIGHT}/${PRIMARY_HEIGHT}+0+0 "$PRIMARY_DISPLAY"
@@ -46,7 +44,7 @@ virtual_split() {
     echo "Switched to Virtual Split Mode (2x ${HALF_WIDTH}x${PRIMARY_HEIGHT})"
 }
 
-# Function to split ultrawide into three virtual monitors
+# Function to split monitor into three virtual monitors
 virtual_three_split() {
     remove_virtual_monitors
     xrandr --setmonitor VIRTUAL1 ${MIDDLE_THIRDS}/${PRIMARY_WIDTH}x${PRIMARY_HEIGHT}/${PRIMARY_HEIGHT}+0+0 "$PRIMARY_DISPLAY"
@@ -55,31 +53,18 @@ virtual_three_split() {
     echo "Switched to Virtual Three Split Mode (${MIDDLE_THIRDS}x${PRIMARY_HEIGHT} | ${MIDDLE_WIDTH}x${PRIMARY_HEIGHT} | ${MIDDLE_THIRDS}x${PRIMARY_HEIGHT})"
 }
 
-# Function to enable physical dual monitors
-physical_dual() {
-    remove_virtual_monitors
-    if [ -n "$SECOND_DISPLAY" ]; then
-        xrandr --output "$PRIMARY_DISPLAY" --primary --auto --output "$SECOND_DISPLAY" --auto --right-of "$PRIMARY_DISPLAY"
-        echo "Switched to Physical Dual Monitor Setup"
-    else
-        echo "No secondary display detected."
-    fi
-}
-
 # Display menu
 echo "Choose a display mode:"
-echo "1) Single Ultrawide Monitor (${PRIMARY_WIDTH}x${PRIMARY_HEIGHT})"
+echo "1) Single Monitor (${PRIMARY_WIDTH}x${PRIMARY_HEIGHT})"
 echo "2) Virtual Split Mode (2x ${HALF_WIDTH}x${PRIMARY_HEIGHT})"
 echo "3) Virtual Three Split Mode (${MIDDLE_THIRDS}x${PRIMARY_HEIGHT} | ${MIDDLE_WIDTH}x${PRIMARY_HEIGHT} | ${MIDDLE_THIRDS}x${PRIMARY_HEIGHT})"
-echo "4) Physical Dual Monitors"
-echo "5) Delete All Virtual Monitors"
-read -p "Enter your choice (1/2/3/4/5): " choice
+echo "4) Delete All Virtual Monitors"
+read -p "Enter your choice (1/2/3/4): " choice
 
 case $choice in
     1) single_monitor ;;
     2) virtual_split ;;
     3) virtual_three_split ;;
-    4) physical_dual ;;
-    5) remove_virtual_monitors ;;
+    4) remove_virtual_monitors ;;
     *) echo "Invalid choice, exiting." ;;
 esac
