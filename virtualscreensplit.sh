@@ -1,31 +1,39 @@
 #!/bin/bash
 
 # Get the primary display name
-PRIMARY_DISPLAY=$(xrandr --listmonitors | grep "*" | awk '{print $4}')
+PRIMARY_DISPLAY=$(xrandr | grep " connected primary" | awk '{print $1}')
+
+if [ -z "$PRIMARY_DISPLAY" ]; then
+    echo "Error: Could not detect primary display."
+    exit 1
+fi
 
 echo "Primary Display: $PRIMARY_DISPLAY"
 
 # Get the secondary display names (if any)
-SECOND_DISPLAY=$(xrandr | grep " connected" | grep -v "$PRIMARY_DISPLAY" | awk '{print $1}')
+SECOND_DISPLAY=$(xrandr | grep " connected" | awk '{print $1}' | grep -v "$PRIMARY_DISPLAY" || echo "")
 
 PRIMARY_RESOLUTION=$(xrandr --current | grep -A1 "$PRIMARY_DISPLAY" | tail -n 1 | awk '{print $1}')
-PRIMARY_WIDTH=$(echo $PRIMARY_RESOLUTION | cut -d 'x' -f 1) #${PRIMARY_WIDTH}
-PRIMARY_HEIGHT=$(echo $PRIMARY_RESOLUTION | cut -d 'x' -f 2) #${PRIMARY_HEIGHT}
-HALF_WIDTH=$((PRIMARY_WIDTH / 2)) #${HALF_WIDTH}
-MIDDLE_WIDTH=$(( 1920 + 0 ))
-MIDDLE_THIRDS=$(( (PRIMARY_WIDTH - MIDDLE_WIDTH) / 2 ))
+PRIMARY_WIDTH=$(echo $PRIMARY_RESOLUTION | cut -d 'x' -f 1)
+PRIMARY_HEIGHT=$(echo $PRIMARY_RESOLUTION | cut -d 'x' -f 2)
+HALF_WIDTH=$((PRIMARY_WIDTH / 2))
+MIDDLE_WIDTH=1920  # Assuming a static middle section width, can be adjusted dynamically
+MIDDLE_THIRDS=$(((PRIMARY_WIDTH - MIDDLE_WIDTH) / 2))
 THIRD_SCREEN_OFFSET=$((PRIMARY_WIDTH - MIDDLE_THIRDS))
 
 remove_virtual_monitors() {
     echo "Removing all possible virtual monitors..."
-    xrandr --delmonitor VIRTUAL1 2>/dev/null
-    xrandr --delmonitor VIRTUAL2 2>/dev/null
-    xrandr --delmonitor VIRTUAL3 2>/dev/null
+    xrandr --listmonitors | grep VIRTUAL | awk '{print $2}' | while read MONITOR; do
+        xrandr --delmonitor "$MONITOR"
+    done
 }
 
 # Function to set single ultrawide mode
 single_monitor() {
-    xrandr --output $PRIMARY_DISPLAY --mode ${PRIMARY_WIDTH}x${PRIMARY_HEIGHT} --primary --output $SECOND_DISPLAY --off
+    xrandr --output "$PRIMARY_DISPLAY" --mode ${PRIMARY_WIDTH}x${PRIMARY_HEIGHT} --primary
+    if [ -n "$SECOND_DISPLAY" ]; then
+        xrandr --output "$SECOND_DISPLAY" --off
+    fi
     remove_virtual_monitors
     echo "Switched to Single Ultrawide Monitor (${PRIMARY_WIDTH}x${PRIMARY_HEIGHT})"
 }
@@ -33,25 +41,29 @@ single_monitor() {
 # Function to split ultrawide into two virtual monitors
 virtual_split() {
     remove_virtual_monitors
-    xrandr --setmonitor VIRTUAL1 ${HALF_WIDTH}/${PRIMARY_WIDTH}x${PRIMARY_HEIGHT}/${PRIMARY_HEIGHT}+0+0 $PRIMARY_DISPLAY
-    xrandr --setmonitor VIRTUAL2 ${HALF_WIDTH}/${PRIMARY_WIDTH}x${PRIMARY_HEIGHT}/${PRIMARY_HEIGHT}+${HALF_WIDTH}+0 none
+    xrandr --setmonitor VIRTUAL1 ${HALF_WIDTH}/${PRIMARY_WIDTH}x${PRIMARY_HEIGHT}/${PRIMARY_HEIGHT}+0+0 "$PRIMARY_DISPLAY"
+    xrandr --setmonitor VIRTUAL2 ${HALF_WIDTH}/${PRIMARY_WIDTH}x${PRIMARY_HEIGHT}/${PRIMARY_HEIGHT}+${HALF_WIDTH}+0 "$PRIMARY_DISPLAY"
     echo "Switched to Virtual Split Mode (2x ${HALF_WIDTH}x${PRIMARY_HEIGHT})"
 }
 
 # Function to split ultrawide into three virtual monitors
 virtual_three_split() {
     remove_virtual_monitors
-    xrandr --setmonitor VIRTUAL1 ${MIDDLE_THIRDS}/${PRIMARY_WIDTH}x${PRIMARY_HEIGHT}/${PRIMARY_HEIGHT}+0+0 $PRIMARY_DISPLAY
-    xrandr --setmonitor VIRTUAL2 ${MIDDLE_WIDTH}/${PRIMARY_WIDTH}x${PRIMARY_HEIGHT}/${PRIMARY_HEIGHT}+${MIDDLE_THIRDS}+0 none
-    xrandr --setmonitor VIRTUAL3 ${MIDDLE_THIRDS}/${PRIMARY_WIDTH}x${PRIMARY_HEIGHT}/${PRIMARY_HEIGHT}+${THIRD_SCREEN_OFFSET}+0 none
+    xrandr --setmonitor VIRTUAL1 ${MIDDLE_THIRDS}/${PRIMARY_WIDTH}x${PRIMARY_HEIGHT}/${PRIMARY_HEIGHT}+0+0 "$PRIMARY_DISPLAY"
+    xrandr --setmonitor VIRTUAL2 ${MIDDLE_WIDTH}/${PRIMARY_WIDTH}x${PRIMARY_HEIGHT}/${PRIMARY_HEIGHT}+${MIDDLE_THIRDS}+0 "$PRIMARY_DISPLAY"
+    xrandr --setmonitor VIRTUAL3 ${MIDDLE_THIRDS}/${PRIMARY_WIDTH}x${PRIMARY_HEIGHT}/${PRIMARY_HEIGHT}+${THIRD_SCREEN_OFFSET}+0 "$PRIMARY_DISPLAY"
     echo "Switched to Virtual Three Split Mode (${MIDDLE_THIRDS}x${PRIMARY_HEIGHT} | ${MIDDLE_WIDTH}x${PRIMARY_HEIGHT} | ${MIDDLE_THIRDS}x${PRIMARY_HEIGHT})"
 }
 
 # Function to enable physical dual monitors
 physical_dual() {
     remove_virtual_monitors
-    xrandr --output $PRIMARY_DISPLAY --primary --auto --output $SECOND_DISPLAY --auto --right-of $PRIMARY_DISPLAY
-    echo "Switched to Physical Dual Monitor Setup"
+    if [ -n "$SECOND_DISPLAY" ]; then
+        xrandr --output "$PRIMARY_DISPLAY" --primary --auto --output "$SECOND_DISPLAY" --auto --right-of "$PRIMARY_DISPLAY"
+        echo "Switched to Physical Dual Monitor Setup"
+    else
+        echo "No secondary display detected."
+    fi
 }
 
 # Display menu
