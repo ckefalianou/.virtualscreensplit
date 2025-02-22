@@ -3,6 +3,9 @@
 
 This is a bash script that allows you to quickly switch between different display configurations for your monitors. You can use it to set up a single monitor, split your monitor into virtual displays, or set up a dual monitor configuration. 
 
+## Important note
+Screen split is only available for x11 sessions for now. "Wayland" support is not its way 🚀
+
 ## Why use this?
 When working with single Ultrawide screens, and you need to share your screen, it is really difficult for everyone to see. You need to switch share between windows and tabs, which is not efficient. Using this script, you will be able **to share a portion of your screen**,
 
